@@ -84,6 +84,12 @@ const bool2: PropDef = {
     async: true,
     notify: true,
 }
+const bool3: PropDef = {
+    type: Boolean,
+    dry: true,
+    async: true,
+    reflect: true
+}
 
 const propDefMap: PropDefMap<LazyMT> = {
     threshold: {
@@ -96,6 +102,7 @@ const propDefMap: PropDefMap<LazyMT> = {
     exit: bool1,
     isVisible: bool2,
     isStartVisible: bool1,
+    isCloned: bool3,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs.propDefs, 'onPropChange');
