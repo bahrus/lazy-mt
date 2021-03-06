@@ -4,9 +4,11 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "node node_modules/xtal-test/serve.js"
   },
   "dependencies": {
+    "trans-render": "0.0.278",
     "xtal-element": "0.0.360"
   },
   "devDependencies": {

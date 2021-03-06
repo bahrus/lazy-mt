@@ -1,4 +1,5 @@
 import { xc } from 'xtal-element/lib/XtalCore.js';
+import { insertAdjacentTemplate } from 'trans-render/lib/insertAdjacentTemplate.js';
 /**
  * @element lazy-mt
  */
@@ -40,16 +41,24 @@ const linkObserver = ({ threshold, self }) => {
     };
     self.observer = new IntersectionObserver(self.callback.bind(self), ioi);
     self.observer.observe(self);
+    const prev = self.previousElementSibling;
+    if (prev === null || prev.content === undefined)
+        throw "No Template Found";
+    const startRef = prev.previousElementSibling;
+    if (startRef.localName !== LazyMT.is)
+        throw "No Starting lazy-mt found.";
+    self.startRef = new WeakRef(startRef);
+    startRef.addEventListener('is-visible-changed', e => {
+        self.isStartVisible = e.detail.value;
+    });
 };
-const linkClonedTemplate = ({ isVisible, exit, self }) => {
-    if (!self.isCloned) {
-        const prev = self.previousElementSibling;
-        if (prev === null || prev.content === undefined)
-            throw "No Template Found";
-        const startRef = prev.previousElementSibling;
-        if (startRef.localName !== LazyMT.is)
-            throw "No Starting lazy-mt found.";
-        self.startRef = new WeakRef(startRef);
+const linkClonedTemplate = ({ isVisible, isStartVisible, exit, self }) => {
+    if (isVisible || isStartVisible) {
+        if (!self.isCloned) {
+            const prev = self.previousElementSibling;
+            insertAdjacentTemplate(prev, self.startRef.deref(), 'afterend');
+            self.isCloned = true;
+        }
     }
 };
 const propActions = [
@@ -65,7 +74,8 @@ const bool1 = {
 const bool2 = {
     type: Boolean,
     dry: true,
-    async: true
+    async: true,
+    notify: true,
 };
 const propDefMap = {
     threshold: {
@@ -77,6 +87,7 @@ const propDefMap = {
     enter: bool1,
     exit: bool1,
     isVisible: bool2,
+    isStartVisible: bool1,
 };
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs.propDefs, 'onPropChange');

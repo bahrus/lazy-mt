@@ -1,5 +1,6 @@
 import { LazyMTProps } from './types.js';
 import {xc, ReactiveSurface, PropAction, PropDef, PropDefMap} from 'xtal-element/lib/XtalCore.js';
+import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js';
 
 /**
  * @element lazy-mt
@@ -11,6 +12,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     reactor = new xc.Rx(this);
     observer: IntersectionObserver | undefined;
     isVisible: boolean | undefined;
+    isStartVisible: boolean | undefined;
     startRef: WeakRef<LazyMT> | undefined;
     threshold: number | undefined;
     enter: boolean | undefined;
@@ -46,15 +48,23 @@ const linkObserver = ({threshold, self}: LazyMT) => {
     };
     self.observer = new IntersectionObserver(self.callback.bind(self), ioi);
     self.observer.observe(self);
+    const prev = self.previousElementSibling as HTMLTemplateElement;
+    if(prev === null || prev.content === undefined) throw "No Template Found";
+    const startRef = prev.previousElementSibling as LazyMT;
+    if(startRef.localName !== LazyMT.is) throw "No Starting lazy-mt found.";
+    self.startRef = new WeakRef(startRef);
+    startRef.addEventListener('is-visible-changed', e => {
+        self.isStartVisible = (<any>e).detail.value;
+    });
 }
 
-const linkClonedTemplate = ({isVisible, exit, self}: LazyMT) => {
-    if(!self.isCloned){
-        const prev = self.previousElementSibling as HTMLTemplateElement;
-        if(prev === null || prev.content === undefined) throw "No Template Found";
-        const startRef = prev.previousElementSibling as LazyMT;
-        if(startRef.localName !== LazyMT.is) throw "No Starting lazy-mt found.";
-        self.startRef = new WeakRef(startRef);
+const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
+    if(isVisible || isStartVisible){
+        if(!self.isCloned){
+            const prev = self.previousElementSibling as HTMLTemplateElement;
+            insertAdjacentTemplate(prev, self.startRef!.deref() as HTMLElement, 'afterend');
+            self.isCloned = true;
+        }
     }
 };
 const propActions = [
@@ -71,8 +81,10 @@ const bool1: PropDef = {
 const bool2: PropDef = {
     type: Boolean,
     dry: true,
-    async: true
+    async: true,
+    notify: true,
 }
+
 const propDefMap: PropDefMap<LazyMT> = {
     threshold: {
         type: Number,
@@ -83,6 +95,7 @@ const propDefMap: PropDefMap<LazyMT> = {
     enter: bool1,
     exit: bool1,
     isVisible: bool2,
+    isStartVisible: bool1,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs.propDefs, 'onPropChange');
