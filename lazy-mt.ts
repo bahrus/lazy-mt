@@ -48,6 +48,10 @@ const linkObserver = ({threshold, self}: LazyMT) => {
     };
     self.observer = new IntersectionObserver(self.callback.bind(self), ioi);
     self.observer.observe(self);
+    
+}
+
+const linkStartRef = ({exit, self}: LazyMT) => {
     const prev = self.previousElementSibling as HTMLTemplateElement;
     if(prev === null || prev.content === undefined) throw "No Template Found";
     const startRef = prev.previousElementSibling as LazyMT;
@@ -62,13 +66,16 @@ const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => 
     if(isVisible || isStartVisible){
         if(!self.isCloned){
             const prev = self.previousElementSibling as HTMLTemplateElement;
-            insertAdjacentTemplate(prev, self.startRef!.deref() as HTMLElement, 'afterend');
+            const entry = self.startRef!.deref()!;
+            insertAdjacentTemplate(prev, entry, 'afterend');
             self.isCloned = true;
+            entry.isCloned = true;
         }
     }
 };
 const propActions = [
     linkObserver,
+    linkStartRef,
     linkClonedTemplate
 ] as PropAction[];
 

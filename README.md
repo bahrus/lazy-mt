@@ -17,5 +17,10 @@ lazy-mt ("lazy mount") is an alternative to [laissez-dom](https://github.com/bah
 
 When either the enter or exit instance becomes visible, the template is cloned between the two tags (and the template is discarded).
 
-When both lazy-mt tags leave the viewport, lazy-mt can set the top most elements to be disabled if toggle-disabled attribute is present on the first lazy-mt tag.
+When both lazy-mt tags leave the viewport, lazy-mt can set any elements with attribute -disabled to disabled.  I.e.:
+
+```html
+<eska-falls -disabled></eska-falls>
+```
+becomes disabled (if it isn't disabled already) when either of the lazy-mt's lose visibility.
 

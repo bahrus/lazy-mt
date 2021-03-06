@@ -41,6 +41,8 @@ const linkObserver = ({ threshold, self }) => {
     };
     self.observer = new IntersectionObserver(self.callback.bind(self), ioi);
     self.observer.observe(self);
+};
+const linkStartRef = ({ exit, self }) => {
     const prev = self.previousElementSibling;
     if (prev === null || prev.content === undefined)
         throw "No Template Found";
@@ -56,13 +58,16 @@ const linkClonedTemplate = ({ isVisible, isStartVisible, exit, self }) => {
     if (isVisible || isStartVisible) {
         if (!self.isCloned) {
             const prev = self.previousElementSibling;
-            insertAdjacentTemplate(prev, self.startRef.deref(), 'afterend');
+            const entry = self.startRef.deref();
+            insertAdjacentTemplate(prev, entry, 'afterend');
             self.isCloned = true;
+            entry.isCloned = true;
         }
     }
 };
 const propActions = [
     linkObserver,
+    linkStartRef,
     linkClonedTemplate
 ];
 const bool1 = {
