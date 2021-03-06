@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"module":"esnext",
+		"sourceMap": false,
+		"experimentalDecorators": true,
+		"strict": true,
+		"newLine": "LF",
+		"watch": true
+	},
+	"exclude":[
+		"build",
+		"node_modules"
+	],
+    "files": [
+        "./lazy-mt.ts"
+    ]
+}

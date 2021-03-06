@@ -5,7 +5,7 @@ lazy-mt ("lazy mount") is an alternative to [laissez-dom](https://github.com/bah
 ```html
 <lazy-mt enter></lazy-mt>
     <template>
-        <w-butte-trial></w-butte-trial>
+        <w-butte-trail></w-butte-trail>
         <boddenburg-butte></boddenburg-butte>
         <reflection-lake-trail></reflection-lake-trail>
         <eklutna-lakeside-trail></eklutna-lakeside-trail>
