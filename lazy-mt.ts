@@ -17,7 +17,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     threshold: number | undefined;
     enter: boolean | undefined;
     exit: boolean | undefined;
-    isCloned: boolean | undefined;
+    cloned: boolean | undefined;
     clonedTemplate: DocumentFragment | undefined;
     toggleDisabled?: boolean | undefined;
     connectedCallback(){
@@ -64,12 +64,12 @@ const linkStartRef = ({exit, self}: LazyMT) => {
 
 const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
     if(isVisible || isStartVisible){
-        if(!self.isCloned){
+        if(!self.cloned){
             const prev = self.previousElementSibling as HTMLTemplateElement;
             const entry = self.startRef!.deref()!;
             insertAdjacentTemplate(prev, entry, 'afterend');
-            self.isCloned = true;
-            entry.isCloned = true;
+            self.cloned = true;
+            entry.cloned = true;
         }
     }
 };
@@ -109,7 +109,7 @@ const propDefMap: PropDefMap<LazyMT> = {
     exit: bool1,
     isVisible: bool2,
     isStartVisible: bool1,
-    isCloned: bool3,
+    cloned: bool3,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs.propDefs, 'onPropChange');

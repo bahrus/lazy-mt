@@ -56,12 +56,12 @@ const linkStartRef = ({ exit, self }) => {
 };
 const linkClonedTemplate = ({ isVisible, isStartVisible, exit, self }) => {
     if (isVisible || isStartVisible) {
-        if (!self.isCloned) {
+        if (!self.cloned) {
             const prev = self.previousElementSibling;
             const entry = self.startRef.deref();
             insertAdjacentTemplate(prev, entry, 'afterend');
-            self.isCloned = true;
-            entry.isCloned = true;
+            self.cloned = true;
+            entry.cloned = true;
         }
     }
 };
@@ -99,7 +99,7 @@ const propDefMap = {
     exit: bool1,
     isVisible: bool2,
     isStartVisible: bool1,
-    isCloned: bool3,
+    cloned: bool3,
 };
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs.propDefs, 'onPropChange');
