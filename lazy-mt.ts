@@ -20,6 +20,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     cloned: boolean | undefined;
     clonedTemplate: DocumentFragment | undefined;
     toggleDisabled?: boolean | undefined;
+    disabledElements = new WeakSet<Element>();
     connectedCallback(){
         xc.hydrate<LazyMTProps>(this, slicedPropDefs, {
             threshold: 0.01
@@ -62,15 +63,36 @@ const linkStartRef = ({exit, self}: LazyMT) => {
     });
 }
 
+function setDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val: boolean){
+    let ns = start.nextElementSibling;
+    while(ns !== null && ns !== end){
+        if(ns.hasAttribute('disabled') && !val){
+            if(self.disabledElements.has(ns)){
+                ns.removeAttribute('disabled');
+            }
+        }else if(!ns.hasAttribute('disabled') && val){
+            ns.setAttribute('disabled', '');
+            self.disabledElements.add(ns);
+        }
+        ns = ns.nextElementSibling;
+    }
+}
+
 const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
+    const entry = self.startRef!.deref();
+    if(entry === undefined) throw "No starting lazy-mt found.";
     if(isVisible || isStartVisible){
         if(!self.cloned){
             const prev = self.previousElementSibling as HTMLTemplateElement;
-            const entry = self.startRef!.deref()!;
+            
             insertAdjacentTemplate(prev, entry, 'afterend');
             self.cloned = true;
             entry.cloned = true;
+        }else{
+            setDisabled(self, entry, self, false);
         }
+    }else if(self.toggleDisabled){
+        setDisabled(self, entry, self, true);
     }
 };
 const propActions = [
@@ -112,5 +134,5 @@ const propDefMap: PropDefMap<LazyMT> = {
     cloned: bool3,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
-xc.letThereBeProps(LazyMT, slicedPropDefs.propDefs, 'onPropChange');
+xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
 xc.define(LazyMT);

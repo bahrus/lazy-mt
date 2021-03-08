@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "trans-render": "0.0.278",
-    "xtal-element": "0.0.360"
+    "xtal-element": "0.0.362"
   },
   "devDependencies": {
     "xtal-test": "0.0.48"

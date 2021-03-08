@@ -9,6 +9,7 @@ export class LazyMT extends HTMLElement {
         this.propActions = propActions;
         this.self = this;
         this.reactor = new xc.Rx(this);
+        this.disabledElements = new WeakSet();
     }
     connectedCallback() {
         xc.hydrate(this, slicedPropDefs, {
@@ -54,15 +55,38 @@ const linkStartRef = ({ exit, self }) => {
         self.isStartVisible = e.detail.value;
     });
 };
+function setDisabled(self, start, end, val) {
+    let ns = start.nextElementSibling;
+    while (ns !== null && ns !== end) {
+        if (ns.hasAttribute('disabled') && !val) {
+            if (self.disabledElements.has(ns)) {
+                ns.removeAttribute('disabled');
+            }
+        }
+        else if (!ns.hasAttribute('disabled') && val) {
+            ns.setAttribute('disabled', '');
+            self.disabledElements.add(ns);
+        }
+        ns = ns.nextElementSibling;
+    }
+}
 const linkClonedTemplate = ({ isVisible, isStartVisible, exit, self }) => {
+    const entry = self.startRef.deref();
+    if (entry === undefined)
+        throw "No starting lazy-mt found.";
     if (isVisible || isStartVisible) {
         if (!self.cloned) {
             const prev = self.previousElementSibling;
-            const entry = self.startRef.deref();
             insertAdjacentTemplate(prev, entry, 'afterend');
             self.cloned = true;
             entry.cloned = true;
         }
+        else {
+            setDisabled(self, entry, self, false);
+        }
+    }
+    else if (self.toggleDisabled) {
+        setDisabled(self, entry, self, true);
     }
 };
 const propActions = [
@@ -102,5 +126,5 @@ const propDefMap = {
     cloned: bool3,
 };
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
-xc.letThereBeProps(LazyMT, slicedPropDefs.propDefs, 'onPropChange');
+xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
 xc.define(LazyMT);
