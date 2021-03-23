@@ -124,6 +124,7 @@ const propDefMap = {
     isVisible: bool2,
     isStartVisible: bool1,
     cloned: bool3,
+    mount: bool3,
 };
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');

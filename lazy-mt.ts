@@ -14,10 +14,12 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     isVisible: boolean | undefined;
     isStartVisible: boolean | undefined;
     startRef: WeakRef<LazyMT> | undefined;
+    webkitStartRef: LazyMT | undefined;
     threshold: number | undefined;
     enter: boolean | undefined;
     exit: boolean | undefined;
     cloned: boolean | undefined;
+    mount: boolean | undefined;
     clonedTemplate: DocumentFragment | undefined;
     toggleDisabled?: boolean | undefined;
     disabledElements = new WeakSet<Element>();
@@ -132,6 +134,7 @@ const propDefMap: PropDefMap<LazyMT> = {
     isVisible: bool2,
     isStartVisible: bool1,
     cloned: bool3,
+    mount: bool3,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
