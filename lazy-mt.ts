@@ -59,7 +59,12 @@ const linkStartRef = ({exit, self}: LazyMT) => {
     if(prev === null || prev.content === undefined) throw "No Template Found";
     const startRef = prev.previousElementSibling as LazyMT;
     if(startRef.localName !== LazyMT.is) throw "No Starting lazy-mt found.";
-    self.startRef = new WeakRef(startRef);
+    if(typeof WeakRef === undefined){
+        self.webkitStartRef = startRef;
+    }else{
+        self.startRef = new WeakRef(startRef);
+    }
+    
     startRef.addEventListener('is-visible-changed', e => {
         self.isStartVisible = (<any>e).detail.value;
     });
@@ -81,7 +86,7 @@ function setDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val: bo
 }
 
 const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
-    const entry = self.startRef!.deref();
+    const entry = (typeof WeakRef !== undefined) ? self.startRef!.deref() : self.webkitStartRef;
     if(entry === undefined) throw "No starting lazy-mt found.";
     if(isVisible || isStartVisible){
         if(!self.cloned){
