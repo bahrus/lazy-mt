@@ -104,7 +104,6 @@ const bool1 = {
     dry: true,
     async: true,
     stopReactionsIfFalsy: true,
-    reflect: true,
 };
 const bool2 = {
     type: Boolean,

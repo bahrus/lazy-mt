@@ -113,7 +113,6 @@ const bool1: PropDef = {
     dry: true,
     async: true,
     stopReactionsIfFalsy: true,
-    reflect: true,
 }
 const bool2: PropDef = {
     type: Boolean,
