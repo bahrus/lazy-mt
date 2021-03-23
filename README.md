@@ -12,12 +12,12 @@ lazy-mt ("lazy mount") is an alternative to [laissez-dom](https://github.com/bah
         <twin-peaks-trail></twin-peaks-trail>
         <eska-falls></eska-falls>
     </template>
-<lazy-mt exit></lazy-mt>
+<lazy-mt exit mount></lazy-mt>
 ```
 
-
-
 When either the enter or exit instance becomes visible, the template is cloned between the two tags (and the template is discarded).
+
+Attribute "mount" is required in order to start watching for visibility.
 
 When both lazy-mt tags leave the viewport, lazy-mt can set any elements to disabled [TODO: test].  I.e.:
 

@@ -24,7 +24,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     toggleDisabled?: boolean | undefined;
     disabledElements = new WeakSet<Element>();
     connectedCallback(){
-        xc.hydrate<LazyMTProps>(this, slicedPropDefs, {
+        xc.hydrate<Partial<LazyMT>>(this, slicedPropDefs, {
             threshold: 0.01
         });
     }
@@ -113,6 +113,7 @@ const bool1: PropDef = {
     dry: true,
     async: true,
     stopReactionsIfFalsy: true,
+    reflect: true,
 }
 const bool2: PropDef = {
     type: Boolean,
