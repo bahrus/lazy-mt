@@ -44,7 +44,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     }
 }
 
-const linkObserver = ({threshold, self}: LazyMT) => {
+const linkObserver = ({mount, threshold, self}: LazyMT) => {
     if(self.observer !== undefined) self.observer.disconnect();
     const ioi : IntersectionObserverInit = {
         threshold: threshold
@@ -139,7 +139,7 @@ const propDefMap: PropDefMap<LazyMT> = {
     isVisible: bool2,
     isStartVisible: bool1,
     cloned: bool3,
-    mount: bool3,
+    mount: bool1,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');

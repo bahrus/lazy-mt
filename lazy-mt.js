@@ -34,7 +34,7 @@ export class LazyMT extends HTMLElement {
     }
 }
 LazyMT.is = 'lazy-mt';
-const linkObserver = ({ threshold, self }) => {
+const linkObserver = ({ mount, threshold, self }) => {
     if (self.observer !== undefined)
         self.observer.disconnect();
     const ioi = {
@@ -129,7 +129,7 @@ const propDefMap = {
     isVisible: bool2,
     isStartVisible: bool1,
     cloned: bool3,
-    mount: bool3,
+    mount: bool1,
 };
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
