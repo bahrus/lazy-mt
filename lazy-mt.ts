@@ -1,12 +1,46 @@
 import { LazyMTProps } from './types.js';
 import {xc, ReactiveSurface, PropAction, PropDef, PropDefMap} from 'xtal-element/lib/XtalCore.js';
 import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js';
+import {passAttrToProp} from 'xtal-element/lib/passAttrToProp.js';
+const bool1: PropDef = {
+    type: Boolean,
+    dry: true,
+    async: true,
+    stopReactionsIfFalsy: true,
+}
+const bool2: PropDef = {
+    type: Boolean,
+    dry: true,
+    async: true,
+    notify: true,
+}
+const bool3: PropDef = {
+    type: Boolean,
+    dry: true,
+    async: true,
+    reflect: true
+}
 
+const propDefMap: PropDefMap<LazyMT> = {
+    threshold: {
+        type: Number,
+        dry: true,
+        async: true,
+    },
+    enter: bool1,
+    exit: bool1,
+    isVisible: bool2,
+    isStartVisible: bool1,
+    cloned: bool3,
+    mount: bool1,
+}
+const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
  * @element lazy-mt
  */
 export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     static is = 'lazy-mt';
+    static observedAttributes = slicedPropDefs.boolNames;
     propActions = propActions;
     self = this;
     reactor = new xc.Rx(this);
@@ -23,6 +57,9 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     clonedTemplate: DocumentFragment | undefined;
     toggleDisabled?: boolean | undefined;
     disabledElements = new WeakSet<Element>();
+    attributeChangedCallback(n: string, ov: string, nv: string){
+        passAttrToProp(this, slicedPropDefs, n, ov, nv);
+    }
     connectedCallback(){
         xc.hydrate<Partial<LazyMT>>(this, slicedPropDefs, {
             threshold: 0.01
@@ -108,39 +145,6 @@ const propActions = [
     linkClonedTemplate
 ] as PropAction[];
 
-const bool1: PropDef = {
-    type: Boolean,
-    dry: true,
-    async: true,
-    stopReactionsIfFalsy: true,
-}
-const bool2: PropDef = {
-    type: Boolean,
-    dry: true,
-    async: true,
-    notify: true,
-}
-const bool3: PropDef = {
-    type: Boolean,
-    dry: true,
-    async: true,
-    reflect: true
-}
 
-const propDefMap: PropDefMap<LazyMT> = {
-    threshold: {
-        type: Number,
-        reflect: true,
-        dry: true,
-        async: true,
-    },
-    enter: bool1,
-    exit: bool1,
-    isVisible: bool2,
-    isStartVisible: bool1,
-    cloned: bool3,
-    mount: bool1,
-}
-const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
 xc.define(LazyMT);
