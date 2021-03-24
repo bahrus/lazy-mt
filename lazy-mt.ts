@@ -130,6 +130,7 @@ const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => 
             const prev = self.previousElementSibling as HTMLTemplateElement;
             
             insertAdjacentTemplate(prev, entry, 'afterend');
+            prev.remove(); //TODO support deleting materialized content
             self.cloned = true;
             entry.cloned = true;
         }else{

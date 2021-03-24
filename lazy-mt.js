@@ -120,6 +120,7 @@ const linkClonedTemplate = ({ isVisible, isStartVisible, exit, self }) => {
         if (!self.cloned) {
             const prev = self.previousElementSibling;
             insertAdjacentTemplate(prev, entry, 'afterend');
+            prev.remove(); //TODO support deleting materialized content
             self.cloned = true;
             entry.cloned = true;
         }
