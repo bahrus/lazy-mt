@@ -103,12 +103,12 @@ const linkStartRef = ({ exit, self }) => {
 function toggleDisabled(self, start, end, val) {
     let ns = start.nextElementSibling;
     while (ns !== null && ns !== end) {
-        if (ns.hasAttribute('disabled') && !val) {
+        if (ns.hasAttribute('disabled') && val) {
             if (self.disabledElements.has(ns)) {
                 ns.removeAttribute('disabled');
             }
         }
-        else if (!ns.hasAttribute('disabled') && val) {
+        else if (!ns.hasAttribute('disabled') && !val) {
             ns.setAttribute('disabled', '');
             self.disabledElements.add(ns);
         }
