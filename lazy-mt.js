@@ -1,22 +1,24 @@
 import { xc } from 'xtal-element/lib/XtalCore.js';
 import { insertAdjacentTemplate } from 'trans-render/lib/insertAdjacentTemplate.js';
 import { passAttrToProp } from 'xtal-element/lib/passAttrToProp.js';
-const bool1 = {
-    type: Boolean,
+const baseProp = {
     dry: true,
     async: true,
+};
+const baseBool = {
+    ...baseProp,
+    type: Boolean
+};
+const bool1 = {
+    ...baseBool,
     stopReactionsIfFalsy: true,
 };
 const bool2 = {
-    type: Boolean,
-    dry: true,
-    async: true,
+    ...baseBool,
     notify: true,
 };
 const bool3 = {
-    type: Boolean,
-    dry: true,
-    async: true,
+    ...baseBool,
     reflect: true
 };
 const propDefMap = {
@@ -28,9 +30,10 @@ const propDefMap = {
     enter: bool1,
     exit: bool1,
     isVisible: bool2,
-    isStartVisible: bool1,
+    isStartVisible: baseBool,
     cloned: bool3,
     mount: bool1,
+    minMem: baseBool,
 };
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
@@ -97,7 +100,7 @@ const linkStartRef = ({ exit, self }) => {
         self.isStartVisible = e.detail.value;
     });
 };
-function setDisabled(self, start, end, val) {
+function toggleDisabled(self, start, end, val) {
     let ns = start.nextElementSibling;
     while (ns !== null && ns !== end) {
         if (ns.hasAttribute('disabled') && !val) {
@@ -112,24 +115,44 @@ function setDisabled(self, start, end, val) {
         ns = ns.nextElementSibling;
     }
 }
+function removeContent(self, start, end) {
+    self.cloned = false;
+    const range = new Range();
+    range.setStart(start, 1);
+    range.setEnd(end, 1);
+    range.deleteContents();
+}
 const linkClonedTemplate = ({ isVisible, isStartVisible, exit, self }) => {
+    if (!isVisible && !isStartVisible)
+        return;
     const entry = (typeof WeakRef !== undefined) ? self.startRef.deref() : self.webkitStartRef;
     if (entry === undefined)
         throw "No starting lazy-mt found.";
     if (isVisible || isStartVisible) {
         if (!self.cloned) {
-            const prev = self.previousElementSibling;
+            const prev = self.templateRef || self.previousElementSibling;
             insertAdjacentTemplate(prev, entry, 'afterend');
-            prev.remove(); //TODO support deleting materialized content
+            if (self.minMem && self.templateRef === undefined) {
+                self.templateRef = prev;
+            }
+            else {
+                prev.remove();
+            }
+            //TODO support deleting materialized content
             self.cloned = true;
             entry.cloned = true;
         }
         else {
-            setDisabled(self, entry, self, false);
+            if (!self.minMem) {
+                toggleDisabled(self, entry, self, false);
+            }
         }
     }
-    else if (self.toggleDisabled) {
-        setDisabled(self, entry, self, true);
+    else if (self.toggleDisabled && !self.minMem) {
+        toggleDisabled(self, entry, self, true);
+    }
+    else if (self.minMem) {
+        removeContent(self, entry, self);
     }
 };
 const propActions = [

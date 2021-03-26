@@ -5,4 +5,5 @@ export interface LazyMTProps extends HTMLElement{
     isVisible?: boolean | undefined;
     toggleDisabled?: boolean | undefined;
     mount?: boolean | undefined;
+    minMem?: boolean | undefined;
 }

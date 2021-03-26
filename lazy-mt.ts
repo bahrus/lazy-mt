@@ -2,22 +2,25 @@ import { LazyMTProps } from './types.js';
 import {xc, ReactiveSurface, PropAction, PropDef, PropDefMap} from 'xtal-element/lib/XtalCore.js';
 import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js';
 import {passAttrToProp} from 'xtal-element/lib/passAttrToProp.js';
-const bool1: PropDef = {
-    type: Boolean,
+
+const baseProp : PropDef = {
     dry: true,
     async: true,
+}
+const baseBool: PropDef = {
+    ...baseProp,
+    type: Boolean
+}
+const bool1: PropDef = {
+    ...baseBool,
     stopReactionsIfFalsy: true,
 }
 const bool2: PropDef = {
-    type: Boolean,
-    dry: true,
-    async: true,
+    ...baseBool,
     notify: true,
 }
 const bool3: PropDef = {
-    type: Boolean,
-    dry: true,
-    async: true,
+    ...baseBool,
     reflect: true
 }
 
@@ -30,9 +33,10 @@ const propDefMap: PropDefMap<LazyMT> = {
     enter: bool1,
     exit: bool1,
     isVisible: bool2,
-    isStartVisible: bool1,
+    isStartVisible: baseBool,
     cloned: bool3,
     mount: bool1,
+    minMem: baseBool,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
@@ -54,7 +58,9 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     exit: boolean | undefined;
     cloned: boolean | undefined;
     mount: boolean | undefined;
-    clonedTemplate: DocumentFragment | undefined;
+    minMem: boolean | undefined;
+    //clonedTemplate: DocumentFragment | undefined;
+    templateRef: HTMLTemplateElement | undefined;
     toggleDisabled?: boolean | undefined;
     disabledElements = new WeakSet<Element>();
     attributeChangedCallback(n: string, ov: string, nv: string){
@@ -107,7 +113,7 @@ const linkStartRef = ({exit, self}: LazyMT) => {
     });
 }
 
-function setDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val: boolean){
+function toggleDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val: boolean){
     let ns = start.nextElementSibling;
     while(ns !== null && ns !== end){
         if(ns.hasAttribute('disabled') && !val){
@@ -122,22 +128,40 @@ function setDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val: bo
     }
 }
 
+function removeContent(self: LazyMT, start: HTMLElement, end: HTMLElement){
+    self.cloned = false;
+    const range = new Range();
+    range.setStart(start, 1);
+    range.setEnd(end, 1);
+    range.deleteContents();
+}
+
 const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
+    if(!isVisible && !isStartVisible) return;
     const entry = (typeof WeakRef !== undefined) ? self.startRef!.deref() : self.webkitStartRef;
     if(entry === undefined) throw "No starting lazy-mt found.";
     if(isVisible || isStartVisible){
         if(!self.cloned){
-            const prev = self.previousElementSibling as HTMLTemplateElement;
-            
+            const prev = self.templateRef || self.previousElementSibling as HTMLTemplateElement;
             insertAdjacentTemplate(prev, entry, 'afterend');
-            prev.remove(); //TODO support deleting materialized content
+            if(self.minMem && self.templateRef === undefined){
+                self.templateRef = prev;
+            }else{
+                prev.remove();
+            }
+             //TODO support deleting materialized content
             self.cloned = true;
             entry.cloned = true;
         }else{
-            setDisabled(self, entry, self, false);
+            if(!self.minMem){
+                toggleDisabled(self, entry, self, false);
+            }
+            
         }
-    }else if(self.toggleDisabled){
-        setDisabled(self, entry, self, true);
+    }else if(self.toggleDisabled && !self.minMem){
+        toggleDisabled(self, entry, self, true);
+    }else if(self.minMem){
+        removeContent(self, entry, self);
     }
 };
 const propActions = [
