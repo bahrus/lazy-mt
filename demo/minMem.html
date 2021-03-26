@@ -16,6 +16,7 @@
     <lazy-mt exit mount id=lazyMTExit min-mem></lazy-mt>
     </ul>
     <button onclick=hideLazyMt()>hide</button>
+    <button onclick=showLazyMt()>show</button>
     <script type=importmap>
         {
             "imports":{
@@ -31,6 +32,10 @@
         function hideLazyMt(){
             lazyMTEnter.style.display = 'none';
             lazyMTExit.style.display = 'none';
+        }
+        function showLazyMt(){
+            lazyMTEnter.style.display = 'inline';
+            lazyMTExit.style.display = 'inline';
         }
     </script>
     <!-- polyfill -->
