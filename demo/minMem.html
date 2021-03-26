@@ -8,12 +8,12 @@
 </head>
 <body>
     <ul>
-    <lazy-mt enter mount hidden id=lazyMT></lazy-mt>
+    <lazy-mt enter mount id=lazyMTEnter></lazy-mt>
     <template>
         <li>hello 1</li>
         <li>hello 2</li>
     </template>
-    <lazy-mt exit mount></lazy-mt>
+    <lazy-mt exit mount id=lazyMTExit min-mem></lazy-mt>
     </ul>
     <button onclick=hideLazyMt()>hide</button>
     <script type=importmap>
@@ -29,7 +29,8 @@
     </script>
     <script>
         function hideLazyMt(){
-            lazyMT.style.display = 'none';
+            lazyMTEnter.style.display = 'none';
+            lazyMTExit.style.display = 'none';
         }
     </script>
     <!-- polyfill -->

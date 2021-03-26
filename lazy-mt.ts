@@ -131,13 +131,12 @@ function toggleDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val:
 function removeContent(self: LazyMT, start: HTMLElement, end: HTMLElement){
     self.cloned = false;
     const range = new Range();
-    range.setStart(start, 1);
-    range.setEnd(end, 1);
+    range.setStart(start, 0);
+    range.setEnd(end, 0);
     range.deleteContents();
 }
 
 const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
-    if(!isVisible && !isStartVisible) return;
     const entry = (typeof WeakRef !== undefined) ? self.startRef!.deref() : self.webkitStartRef;
     if(entry === undefined) throw "No starting lazy-mt found.";
     if(isVisible || isStartVisible){
@@ -158,9 +157,9 @@ const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => 
             }
             
         }
-    }else if(self.toggleDisabled && !self.minMem){
+    }else if(self.cloned && self.toggleDisabled && !self.minMem){
         toggleDisabled(self, entry, self, true);
-    }else if(self.minMem){
+    }else if(self.cloned && self.minMem){
         removeContent(self, entry, self);
     }
 };
