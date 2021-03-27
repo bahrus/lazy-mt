@@ -2,6 +2,8 @@ import { LazyMTProps } from './types.js';
 import {xc, ReactiveSurface, PropAction, PropDef, PropDefMap} from 'xtal-element/lib/XtalCore.js';
 import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js';
 import {passAttrToProp} from 'xtal-element/lib/passAttrToProp.js';
+import {nudge} from 'xtal-element/lib/nudge.js';
+import {zzz} from 'xtal-element/lib/zzz.js';
 
 const baseProp : PropDef = {
     dry: true,
@@ -37,6 +39,7 @@ const propDefMap: PropDefMap<LazyMT> = {
     cloned: bool3,
     mount: bool1,
     minMem: baseBool,
+    toggleDisabled: baseBool,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
@@ -116,13 +119,10 @@ const linkStartRef = ({exit, self}: LazyMT) => {
 function toggleDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val: boolean){
     let ns = start.nextElementSibling;
     while(ns !== null && ns !== end){
-        if(ns.hasAttribute('disabled') && val){
-            if(self.disabledElements.has(ns)){
-                ns.removeAttribute('disabled');
-            }
-        }else if(!ns.hasAttribute('disabled') && !val){
-            ns.setAttribute('disabled', '');
-            self.disabledElements.add(ns);
+        if(val){
+            zzz(ns);
+        }else{
+            nudge(ns);
         }
         ns = ns.nextElementSibling;
     }
