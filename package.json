@@ -1,7 +1,7 @@
 {
   "name": "lazy-mt",
   "description": "",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "lazy-mt.js",
   "module": "lazy-mt.js",
   "scripts": {
