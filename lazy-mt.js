@@ -54,7 +54,7 @@ export class LazyMT extends HTMLElement {
         passAttrToProp(this, slicedPropDefs, n, ov, nv);
     }
     connectedCallback() {
-        xc.hydrate(this, slicedPropDefs, {
+        xc.mergeProps(this, slicedPropDefs, {
             threshold: 0.01
         });
     }

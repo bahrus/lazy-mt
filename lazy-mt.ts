@@ -1,5 +1,5 @@
 import { LazyMTProps } from './types.js';
-import {xc, ReactiveSurface, PropAction, PropDef, PropDefMap} from 'xtal-element/lib/XtalCore.js';
+import {xc, ReactiveSurface, PropAction, PropDef, PropDefMap, IReactor} from 'xtal-element/lib/XtalCore.js';
 import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js';
 import {passAttrToProp} from 'xtal-element/lib/passAttrToProp.js';
 import {nudge} from 'xtal-element/lib/nudge.js';
@@ -50,7 +50,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     static observedAttributes = slicedPropDefs.boolNames;
     propActions = propActions;
     self = this;
-    reactor = new xc.Rx(this);
+    reactor: IReactor = new xc.Rx(this);
     observer: IntersectionObserver | undefined;
     isVisible: boolean | undefined;
     isStartVisible: boolean | undefined;
@@ -70,7 +70,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
         passAttrToProp(this, slicedPropDefs, n, ov, nv);
     }
     connectedCallback(){
-        xc.hydrate<Partial<LazyMT>>(this, slicedPropDefs, {
+        xc.mergeProps<Partial<LazyMT>>(this, slicedPropDefs, {
             threshold: 0.01
         });
     }
