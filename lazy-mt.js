@@ -43,13 +43,26 @@ const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
  * @element lazy-mt
  */
 export class LazyMT extends HTMLElement {
-    constructor() {
-        super(...arguments);
-        this.propActions = propActions;
-        this.self = this;
-        this.reactor = new xc.Rx(this);
-        this.disabledElements = new WeakSet();
-    }
+    static is = 'lazy-mt';
+    static observedAttributes = slicedPropDefs.boolNames;
+    propActions = propActions;
+    self = this;
+    reactor = new xc.Rx(this);
+    observer;
+    isVisible;
+    isStartVisible;
+    startRef;
+    webkitStartRef;
+    threshold;
+    enter;
+    exit;
+    cloned;
+    mount;
+    minMem;
+    //clonedTemplate: DocumentFragment | undefined;
+    templateRef;
+    toggleDisabled;
+    disabledElements = new WeakSet();
     attributeChangedCallback(n, ov, nv) {
         passAttrToProp(this, slicedPropDefs, n, ov, nv);
     }
@@ -75,8 +88,6 @@ export class LazyMT extends HTMLElement {
         }
     }
 }
-LazyMT.is = 'lazy-mt';
-LazyMT.observedAttributes = slicedPropDefs.boolNames;
 const linkObserver = ({ mount, threshold, self }) => {
     if (self.observer !== undefined)
         self.observer.disconnect();

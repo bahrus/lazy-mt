@@ -19,10 +19,11 @@
   ],
   "exports": {
     ".": "./lazy-mt.js",
-    "./lazy-mt.js": "./lazy-mt.js"
+    "./lazy-mt.js": "./lazy-mt.js",
+    "customElements": "./custom-elements.json"
   },
   "files": [
-    "lazy-mt.js",
+    "lazy-mt.*",
     "types.d.ts",
     "custom-elements.json"
   ],
