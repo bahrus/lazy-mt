@@ -6,7 +6,9 @@
   "module": "lazy-mt.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "node node_modules/xtal-test/serve.js"
+    "package-check": "package-check",
+    "serve": "node node_modules/xtal-test/serve.js",
+    "doc": "custom-elements-manifest analyze"
   },
   "keywords": [
     "webcomponents",
@@ -43,5 +45,6 @@
   "bugs": {
     "url": "https://github.com/bahrus/lazy-mt/issues"
   },
-  "homepage": "https://github.com/bahrus/lazy-mt#readme"
+  "homepage": "https://github.com/bahrus/lazy-mt#readme",
+  "customElements": "custom-elements.json"
 }
