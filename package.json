@@ -1,6 +1,6 @@
 {
   "name": "lazy-mt",
-  "description": "",
+  "description": "Lazy load DOM in a flattened structure",
   "version": "0.0.7",
   "main": "lazy-mt.js",
   "module": "lazy-mt.js",
@@ -8,18 +8,37 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "node node_modules/xtal-test/serve.js"
   },
+  "keywords": [
+    "webcomponents",
+    "webcomponent",
+    "customelements",
+    "customelement",
+    "lazy-load"
+  ],
+  "exports": {
+    ".": "./lazy-mt.js",
+    "./lazy-mt.js": "./lazy-mt.js"
+  },
+  "files": [
+    "lazy-mt.js",
+    "types.d.ts",
+    "custom-elements.json"
+  ],
+  "types": "./types.d.ts",
   "dependencies": {
-    "trans-render": "0.0.289",
-    "xtal-element": "0.0.394"
+    "trans-render": "0.0.291",
+    "xtal-element": "0.0.402"
   },
   "devDependencies": {
-    "xtal-test": "0.0.50"
+    "@skypack/package-check": "0.2.2",
+    "xtal-test": "0.0.51",
+    "@custom-elements-manifest/analyzer": "0.3.5"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bahrus/lazy-mt.git"
   },
-  "author": "",
+  "author": "anderson.bruce.b@gmail.com",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bahrus/lazy-mt/issues"
