@@ -37,6 +37,7 @@ const propDefMap = {
     mount: bool1,
     minMem: baseBool,
     toggleDisabled: baseBool,
+    treatAsVisible: baseBool,
 };
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
@@ -53,15 +54,14 @@ export class LazyMT extends HTMLElement {
     isStartVisible;
     startRef;
     webkitStartRef;
-    threshold;
-    enter;
-    exit;
+    /**
+     * @private
+     */
     cloned;
-    mount;
-    minMem;
-    //clonedTemplate: DocumentFragment | undefined;
     templateRef;
-    toggleDisabled;
+    /**
+     * @private
+     */
     disabledElements = new WeakSet();
     attributeChangedCallback(n, ov, nv) {
         passAttrToProp(this, slicedPropDefs, n, ov, nv);
@@ -89,6 +89,10 @@ export class LazyMT extends HTMLElement {
     }
 }
 const linkObserver = ({ mount, threshold, self }) => {
+    if (self.treatAsVisible) {
+        self.isVisible = true;
+        return;
+    }
     if (self.observer !== undefined)
         self.observer.disconnect();
     const ioi = {

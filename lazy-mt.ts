@@ -40,6 +40,7 @@ const propDefMap: PropDefMap<LazyMT> = {
     mount: bool1,
     minMem: baseBool,
     toggleDisabled: baseBool,
+    treatAsVisible: baseBool,
 }
 const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
@@ -56,15 +57,14 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     isStartVisible: boolean | undefined;
     startRef: WeakRef<LazyMT> | undefined;
     webkitStartRef: LazyMT | undefined;
-    threshold: number | undefined;
-    enter: boolean | undefined;
-    exit: boolean | undefined;
+    /**
+     * @private
+     */
     cloned: boolean | undefined;
-    mount: boolean | undefined;
-    minMem: boolean | undefined;
-    //clonedTemplate: DocumentFragment | undefined;
     templateRef: HTMLTemplateElement | undefined;
-    toggleDisabled?: boolean | undefined;
+    /**
+     * @private
+     */
     disabledElements = new WeakSet<Element>();
     attributeChangedCallback(n: string, ov: string, nv: string){
         passAttrToProp(this, slicedPropDefs, n, ov, nv);
@@ -89,8 +89,15 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
         }
     }
 }
+export interface LazyMT extends LazyMTProps{
+
+}
 
 const linkObserver = ({mount, threshold, self}: LazyMT) => {
+    if(self.treatAsVisible){
+        self.isVisible = true;
+        return;
+    }
     if(self.observer !== undefined) self.observer.disconnect();
     const ioi : IntersectionObserverInit = {
         threshold: threshold
