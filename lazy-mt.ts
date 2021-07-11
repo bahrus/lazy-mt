@@ -71,7 +71,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     }
     connectedCallback(){
         xc.mergeProps<Partial<LazyMT>>(this, slicedPropDefs, {
-            threshold: 0.01
+            threshold: 0
         });
     }
     onPropChange(name: string, prop: PropDef, nv: any){
@@ -80,14 +80,16 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     disconnectedCallback(){
         if(this.observer !== undefined) this.observer.disconnect();
     }
-    callback(entries: any, observer: any){
-        const first = entries[0];
-        if(first.intersectionRatio > 0){
-            this.isVisible = true;
-        }else{
-            this.isVisible = false;
+    callback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+        for(const entry of entries){
+            if(entry.intersectionRatio > 0){
+                this.isVisible = true;
+                return;
+            }
         }
+        this.isVisible = false;
     }
+
 }
 export interface LazyMT extends LazyMTProps{
 
@@ -102,9 +104,8 @@ const linkObserver = ({mount, threshold, self}: LazyMT) => {
     const ioi : IntersectionObserverInit = {
         threshold: threshold
     };
-    self.observer = new IntersectionObserver(self.callback.bind(self), ioi);
+    self.observer = new IntersectionObserver(self.callback, ioi);
     self.observer.observe(self);
-    
 }
 
 const linkStartRef = ({exit, self}: LazyMT) => {

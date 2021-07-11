@@ -68,7 +68,7 @@ export class LazyMT extends HTMLElement {
     }
     connectedCallback() {
         xc.mergeProps(this, slicedPropDefs, {
-            threshold: 0.01
+            threshold: 0
         });
     }
     onPropChange(name, prop, nv) {
@@ -78,15 +78,15 @@ export class LazyMT extends HTMLElement {
         if (this.observer !== undefined)
             this.observer.disconnect();
     }
-    callback(entries, observer) {
-        const first = entries[0];
-        if (first.intersectionRatio > 0) {
-            this.isVisible = true;
+    callback = (entries, observer) => {
+        for (const entry of entries) {
+            if (entry.intersectionRatio > 0) {
+                this.isVisible = true;
+                return;
+            }
         }
-        else {
-            this.isVisible = false;
-        }
-    }
+        this.isVisible = false;
+    };
 }
 const linkObserver = ({ mount, threshold, self }) => {
     if (self.treatAsVisible) {
@@ -98,7 +98,7 @@ const linkObserver = ({ mount, threshold, self }) => {
     const ioi = {
         threshold: threshold
     };
-    self.observer = new IntersectionObserver(self.callback.bind(self), ioi);
+    self.observer = new IntersectionObserver(self.callback, ioi);
     self.observer.observe(self);
 };
 const linkStartRef = ({ exit, self }) => {
