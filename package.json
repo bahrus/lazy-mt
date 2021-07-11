@@ -1,7 +1,7 @@
 {
   "name": "lazy-mt",
   "description": "Lazy load DOM in a flattened structure",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "main": "lazy-mt.js",
   "module": "lazy-mt.js",
   "scripts": {
