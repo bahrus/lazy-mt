@@ -19,8 +19,7 @@
   ],
   "exports": {
     ".": "./lazy-mt.js",
-    "./lazy-mt.js": "./lazy-mt.js",
-    "customElements": "./custom-elements.json"
+    "./lazy-mt.js": "./lazy-mt.js"
   },
   "files": [
     "lazy-mt.*",
@@ -30,12 +29,12 @@
   "types": "./types.d.ts",
   "dependencies": {
     "trans-render": "0.0.291",
-    "xtal-element": "0.0.413"
+    "xtal-element": "0.0.414"
   },
   "devDependencies": {
     "@skypack/package-check": "0.2.2",
     "xtal-test": "0.0.51",
-    "@custom-elements-manifest/analyzer": "0.4.11"
+    "@custom-elements-manifest/analyzer": "0.4.12"
   },
   "repository": {
     "type": "git",
