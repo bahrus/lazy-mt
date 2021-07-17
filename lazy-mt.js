@@ -3,49 +3,12 @@ import { insertAdjacentTemplate } from 'trans-render/lib/insertAdjacentTemplate.
 import { passAttrToProp } from 'xtal-element/lib/passAttrToProp.js';
 import { nudge } from 'xtal-element/lib/nudge.js';
 import { zzz } from 'xtal-element/lib/zzz.js';
-const baseProp = {
-    dry: true,
-    async: true,
-};
-const baseBool = {
-    ...baseProp,
-    type: Boolean
-};
-const bool1 = {
-    ...baseBool,
-    stopReactionsIfFalsy: true,
-};
-const bool2 = {
-    ...baseBool,
-    notify: true,
-};
-const bool3 = {
-    ...baseBool,
-    reflect: true
-};
-const propDefMap = {
-    threshold: {
-        type: Number,
-        dry: true,
-        async: true,
-    },
-    enter: bool1,
-    exit: bool1,
-    isVisible: bool2,
-    isStartVisible: baseBool,
-    cloned: bool3,
-    mount: bool1,
-    minMem: baseBool,
-    toggleDisabled: baseBool,
-    treatAsVisible: baseBool,
-};
-const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
  * @element lazy-mt
  */
 export class LazyMT extends HTMLElement {
     static is = 'lazy-mt';
-    static observedAttributes = slicedPropDefs.boolNames;
+    static observedAttributes = ['enter', 'exit', 'mount', 'treat-as-visible', 'toggle-disabled', 'disabled'];
     propActions = propActions;
     self = this;
     reactor = new xc.Rx(this);
@@ -87,6 +50,7 @@ export class LazyMT extends HTMLElement {
     };
 }
 const linkObserver = ({ mount, threshold, self }) => {
+    console.log('inLinkObserver');
     if (self.treatAsVisible) {
         self.isVisible = true;
         return;
@@ -126,6 +90,11 @@ function toggleDisabled(self, start, end, val) {
 }
 function isElementInViewport(el) {
     var rect = el.getBoundingClientRect();
+    console.log({
+        rect,
+        winBottom: window.innerHeight || document.documentElement.clientHeight,
+        winRight: (window.innerWidth || document.documentElement.clientWidth)
+    });
     return (rect.top >= 0 &&
         rect.left >= 0 &&
         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
@@ -174,5 +143,42 @@ const propActions = [
     linkStartRef,
     linkClonedTemplate
 ];
+const baseProp = {
+    dry: true,
+    async: true,
+};
+const baseBool = {
+    ...baseProp,
+    type: Boolean
+};
+const bool1 = {
+    ...baseBool,
+    stopReactionsIfFalsy: true,
+};
+const bool2 = {
+    ...baseBool,
+    notify: true,
+};
+const bool3 = {
+    ...baseBool,
+    reflect: true
+};
+const propDefMap = {
+    threshold: {
+        type: Number,
+        dry: true,
+        async: true,
+    },
+    enter: bool1,
+    exit: bool1,
+    isVisible: bool2,
+    isStartVisible: baseBool,
+    cloned: bool3,
+    mount: bool1,
+    minMem: baseBool,
+    toggleDisabled: baseBool,
+    treatAsVisible: baseBool,
+};
+const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
 xc.define(LazyMT);

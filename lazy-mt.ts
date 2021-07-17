@@ -5,50 +5,13 @@ import {passAttrToProp} from 'xtal-element/lib/passAttrToProp.js';
 import {nudge} from 'xtal-element/lib/nudge.js';
 import {zzz} from 'xtal-element/lib/zzz.js';
 
-const baseProp : PropDef = {
-    dry: true,
-    async: true,
-}
-const baseBool: PropDef = {
-    ...baseProp,
-    type: Boolean
-}
-const bool1: PropDef = {
-    ...baseBool,
-    stopReactionsIfFalsy: true,
-}
-const bool2: PropDef = {
-    ...baseBool,
-    notify: true,
-}
-const bool3: PropDef = {
-    ...baseBool,
-    reflect: true
-}
 
-const propDefMap: PropDefMap<LazyMT> = {
-    threshold: {
-        type: Number,
-        dry: true,
-        async: true,
-    },
-    enter: bool1,
-    exit: bool1,
-    isVisible: bool2,
-    isStartVisible: baseBool,
-    cloned: bool3,
-    mount: bool1,
-    minMem: baseBool,
-    toggleDisabled: baseBool,
-    treatAsVisible: baseBool,
-}
-const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 /**
  * @element lazy-mt
  */
 export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     static is = 'lazy-mt';
-    static observedAttributes = slicedPropDefs.boolNames;
+    static observedAttributes = ['enter', 'exit','mount','treat-as-visible','toggle-disabled','disabled'];
     propActions = propActions;
     self = this;
     reactor: IReactor = new xc.Rx(this);
@@ -92,6 +55,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
 export interface LazyMT extends LazyMTProps{}
 
 const linkObserver = ({mount, threshold, self}: LazyMT) => {
+    console.log('inLinkObserver');
     if(self.treatAsVisible){
         self.isVisible = true;
         return;
@@ -133,7 +97,11 @@ function toggleDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val:
 function isElementInViewport (el: Element) {
 
     var rect = el.getBoundingClientRect();
-
+    console.log({
+        rect, 
+        winBottom: window.innerHeight || document.documentElement.clientHeight,
+        winRight: (window.innerWidth || document.documentElement.clientWidth)
+    });
     return (
         rect.top >= 0 &&
         rect.left >= 0 &&
@@ -183,6 +151,43 @@ const propActions = [
     linkClonedTemplate
 ] as PropAction[];
 
+const baseProp : PropDef = {
+    dry: true,
+    async: true,
+}
+const baseBool: PropDef = {
+    ...baseProp,
+    type: Boolean
+}
+const bool1: PropDef = {
+    ...baseBool,
+    stopReactionsIfFalsy: true,
+}
+const bool2: PropDef = {
+    ...baseBool,
+    notify: true,
+}
+const bool3: PropDef = {
+    ...baseBool,
+    reflect: true
+}
 
+const propDefMap: PropDefMap<LazyMT> = {
+    threshold: {
+        type: Number,
+        dry: true,
+        async: true,
+    },
+    enter: bool1,
+    exit: bool1,
+    isVisible: bool2,
+    isStartVisible: baseBool,
+    cloned: bool3,
+    mount: bool1,
+    minMem: baseBool,
+    toggleDisabled: baseBool,
+    treatAsVisible: baseBool,
+}
+const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
 xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
 xc.define(LazyMT);
