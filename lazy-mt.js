@@ -40,6 +40,7 @@ export class LazyMT extends HTMLElement {
             this.observer.disconnect();
     }
     callback = (entries, observer) => {
+        console.log(entries);
         for (const entry of entries) {
             if (entry.intersectionRatio > 0) {
                 this.isVisible = true;
@@ -62,7 +63,9 @@ const linkObserver = ({ mount, threshold, self }) => {
     };
     self.observer = new IntersectionObserver(self.callback, ioi);
     self.observer.observe(self);
-    self.isVisible = isElementInViewport(self);
+    setTimeout(() => {
+        self.isVisible = isElementInViewport(self);
+    }, 500);
 };
 const linkStartRef = ({ exit, self }) => {
     const prev = self.previousElementSibling;
