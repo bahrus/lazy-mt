@@ -29,7 +29,7 @@
   "types": "./types.d.ts",
   "dependencies": {
     "trans-render": "0.0.291",
-    "xtal-element": "0.0.414"
+    "xtal-element": "0.0.415"
   },
   "devDependencies": {
     "@skypack/package-check": "0.2.2",

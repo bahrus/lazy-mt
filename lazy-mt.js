@@ -50,10 +50,8 @@ export class LazyMT extends HTMLElement {
     self = this;
     reactor = new xc.Rx(this);
     observer;
-    isVisible;
     isStartVisible;
     startRef;
-    webkitStartRef;
     /**
      * @private
      */
@@ -100,6 +98,7 @@ const linkObserver = ({ mount, threshold, self }) => {
     };
     self.observer = new IntersectionObserver(self.callback, ioi);
     self.observer.observe(self);
+    self.isVisible = isElementInViewport(self);
 };
 const linkStartRef = ({ exit, self }) => {
     const prev = self.previousElementSibling;
@@ -108,12 +107,7 @@ const linkStartRef = ({ exit, self }) => {
     const startRef = prev.previousElementSibling;
     if (startRef.localName !== LazyMT.is)
         throw "No Starting lazy-mt found.";
-    if (typeof WeakRef === undefined) {
-        self.webkitStartRef = startRef;
-    }
-    else {
-        self.startRef = new WeakRef(startRef);
-    }
+    self.startRef = new WeakRef(startRef);
     startRef.addEventListener('is-visible-changed', e => {
         self.isStartVisible = e.detail.value;
     });
@@ -130,6 +124,13 @@ function toggleDisabled(self, start, end, val) {
         ns = ns.nextElementSibling;
     }
 }
+function isElementInViewport(el) {
+    var rect = el.getBoundingClientRect();
+    return (rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */);
+}
 function removeContent(self, start, end) {
     self.cloned = false;
     const range = new Range();
@@ -138,7 +139,7 @@ function removeContent(self, start, end) {
     range.deleteContents();
 }
 const linkClonedTemplate = ({ isVisible, isStartVisible, exit, self }) => {
-    const entry = (typeof WeakRef !== undefined) ? self.startRef.deref() : self.webkitStartRef;
+    const entry = self.startRef.deref();
     if (entry === undefined)
         throw "No starting lazy-mt found.";
     if (isVisible || isStartVisible) {

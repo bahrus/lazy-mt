@@ -53,10 +53,8 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     self = this;
     reactor: IReactor = new xc.Rx(this);
     observer: IntersectionObserver | undefined;
-    isVisible: boolean | undefined;
     isStartVisible: boolean | undefined;
     startRef: WeakRef<LazyMT> | undefined;
-    webkitStartRef: LazyMT | undefined;
     /**
      * @private
      */
@@ -91,9 +89,7 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
     }
 
 }
-export interface LazyMT extends LazyMTProps{
-
-}
+export interface LazyMT extends LazyMTProps{}
 
 const linkObserver = ({mount, threshold, self}: LazyMT) => {
     if(self.treatAsVisible){
@@ -106,6 +102,7 @@ const linkObserver = ({mount, threshold, self}: LazyMT) => {
     };
     self.observer = new IntersectionObserver(self.callback, ioi);
     self.observer.observe(self);
+    self.isVisible = isElementInViewport(self);
 }
 
 const linkStartRef = ({exit, self}: LazyMT) => {
@@ -113,11 +110,8 @@ const linkStartRef = ({exit, self}: LazyMT) => {
     if(prev === null || prev.content === undefined) throw "No Template Found";
     const startRef = prev.previousElementSibling as LazyMT;
     if(startRef.localName !== LazyMT.is) throw "No Starting lazy-mt found.";
-    if(typeof WeakRef === undefined){
-        self.webkitStartRef = startRef;
-    }else{
-        self.startRef = new WeakRef(startRef);
-    }
+    
+    self.startRef = new WeakRef(startRef);
     
     startRef.addEventListener('is-visible-changed', e => {
         self.isStartVisible = (<any>e).detail.value;
@@ -136,6 +130,18 @@ function toggleDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val:
     }
 }
 
+function isElementInViewport (el: Element) {
+
+    var rect = el.getBoundingClientRect();
+
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */
+    );
+}
+
 function removeContent(self: LazyMT, start: HTMLElement, end: HTMLElement){
     self.cloned = false;
     const range = new Range();
@@ -145,7 +151,7 @@ function removeContent(self: LazyMT, start: HTMLElement, end: HTMLElement){
 }
 
 const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
-    const entry = (typeof WeakRef !== undefined) ? self.startRef!.deref() : self.webkitStartRef;
+    const entry = self.startRef!.deref();
     if(entry === undefined) throw "No starting lazy-mt found.";
     if(isVisible || isStartVisible){
         if(!self.cloned){
