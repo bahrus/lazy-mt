@@ -42,7 +42,6 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
         if(this.observer !== undefined) this.observer.disconnect();
     }
     callback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
-        console.log(entries);
         for(const entry of entries){
             if(entry.intersectionRatio > 0){
                 this.isVisible = true;
@@ -59,7 +58,6 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
 export interface LazyMT extends LazyMTProps{}
 
 const linkObserver = ({mount, threshold, self}: LazyMT) => {
-    console.log('inLinkObserver');
     if(self.treatAsVisible){
         self.isVisible = true;
         return;
