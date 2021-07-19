@@ -49,6 +49,9 @@ export class LazyMT extends HTMLElement {
         }
         this.isVisible = false;
     };
+    checkVisibility() {
+        this.isVisible = isElementInViewport(this);
+    }
 }
 const linkObserver = ({ mount, threshold, self }) => {
     console.log('inLinkObserver');
@@ -64,7 +67,7 @@ const linkObserver = ({ mount, threshold, self }) => {
     self.observer = new IntersectionObserver(self.callback, ioi);
     self.observer.observe(self);
     setTimeout(() => {
-        self.isVisible = isElementInViewport(self);
+        self.checkVisibility();
     }, 500);
 };
 const linkStartRef = ({ exit, self }) => {
@@ -93,11 +96,11 @@ function toggleDisabled(self, start, end, val) {
 }
 function isElementInViewport(el) {
     var rect = el.getBoundingClientRect();
-    console.log({
-        rect,
-        winBottom: window.innerHeight || document.documentElement.clientHeight,
-        winRight: (window.innerWidth || document.documentElement.clientWidth)
-    });
+    // console.log({
+    //     rect, 
+    //     winBottom: window.innerHeight || document.documentElement.clientHeight,
+    //     winRight: (window.innerWidth || document.documentElement.clientWidth)
+    // });
     return (rect.top >= 0 &&
         rect.left >= 0 &&
         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */

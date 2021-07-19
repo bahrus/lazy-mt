@@ -51,6 +51,9 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
         }
         this.isVisible = false;
     }
+    checkVisibility(){
+        this.isVisible = isElementInViewport(this);
+    }
 
 }
 export interface LazyMT extends LazyMTProps{}
@@ -68,7 +71,7 @@ const linkObserver = ({mount, threshold, self}: LazyMT) => {
     self.observer = new IntersectionObserver(self.callback, ioi);
     self.observer.observe(self);
     setTimeout(() => {
-        self.isVisible = isElementInViewport(self);
+        self.checkVisibility();
     }, 500);
     
 }
@@ -101,11 +104,11 @@ function toggleDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val:
 function isElementInViewport (el: Element) {
 
     var rect = el.getBoundingClientRect();
-    console.log({
-        rect, 
-        winBottom: window.innerHeight || document.documentElement.clientHeight,
-        winRight: (window.innerWidth || document.documentElement.clientWidth)
-    });
+    // console.log({
+    //     rect, 
+    //     winBottom: window.innerHeight || document.documentElement.clientHeight,
+    //     winRight: (window.innerWidth || document.documentElement.clientWidth)
+    // });
     return (
         rect.top >= 0 &&
         rect.left >= 0 &&
