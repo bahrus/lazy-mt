@@ -11,10 +11,10 @@
     "doc": "custom-elements-manifest analyze"
   },
   "keywords": [
-    "webcomponents",
-    "webcomponent",
-    "customelements",
-    "customelement",
+    "web components",
+    "web component",
+    "custom elements",
+    "custom element",
     "lazy-load"
   ],
   "exports": {
@@ -28,8 +28,8 @@
   ],
   "types": "./types.d.ts",
   "dependencies": {
-    "trans-render": "0.0.291",
-    "xtal-element": "0.0.416"
+    "trans-render": "0.0.338",
+    "xtal-element": "0.0.425"
   },
   "devDependencies": {
     "@skypack/package-check": "0.2.2",
