@@ -1,15 +1,16 @@
 export interface LazyMTProps{
-    cloned: boolean | undefined;
-    threshold?: number | undefined;
+    checkedVisibility?: boolean;
+    cloned?: boolean;
     enter?: boolean | undefined;
     exit?: boolean | undefined;
-    isVisible?: boolean | undefined;
-    toggleDisabled?: boolean | undefined;
-    mount?: boolean | undefined;
-    minMem?: boolean | undefined;
-    treatAsVisible: boolean | undefined;
     isStartVisible: boolean | undefined;
+    isVisible?: boolean | undefined;
+    minMem?: boolean | undefined;
+    mount?: boolean | undefined;
     startRef: WeakRef<LazyMT> | undefined;
+    threshold?: number | undefined;
+    toggleDisabled?: boolean | undefined;
+    treatAsVisible: boolean | undefined;
 }
 
 export interface LazyMTActions {

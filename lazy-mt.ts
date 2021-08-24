@@ -1,46 +1,52 @@
-import { LazyMTProps } from './types.js';
-import {xc, ReactiveSurface, PropAction, PropDef, PropDefMap, IReactor} from 'xtal-element/lib/XtalCore.js';
-import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js';
-import {passAttrToProp} from 'xtal-element/lib/passAttrToProp.js';
+import {XE} from 'xtal-element/src/XE.js';
+import {LazyMTActions, LazyMTProps} from './types.js';
 import {nudge} from 'xtal-element/lib/nudge.js';
 import {zzz} from 'xtal-element/lib/zzz.js';
-
+import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js';
 
 /**
  * @element lazy-mt
+ * @tag lazy-mt
  */
-export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
-    static is = 'lazy-mt';
-    static observedAttributes = ['enter', 'exit','mount','treat-as-visible','toggle-disabled','disabled'];
-    propActions = propActions;
-    self = this;
-    reactor: IReactor = new xc.Rx(this);
-    observer: IntersectionObserver | undefined;
-    isStartVisible: boolean | undefined;
-    startRef: WeakRef<LazyMT> | undefined;
-    /**
-     * @private
-     */
-    cloned: boolean | undefined;
-    templateRef: HTMLTemplateElement | undefined;
-    /**
-     * @private
-     */
-    disabledElements = new WeakSet<Element>();
-    attributeChangedCallback(n: string, ov: string, nv: string){
-        passAttrToProp(this, slicedPropDefs, n, ov, nv);
+export class LazyMTCore extends HTMLElement implements LazyMTActions{
+
+    #observer: IntersectionObserver | undefined;
+    
+    
+    
+    #templateRef: HTMLTemplateElement | undefined;
+    addIntersectionObserver(self: this){
+        const {threshold} = self;
+        if(self.#observer !== undefined) self.#observer.disconnect();
+        const ioi : IntersectionObserverInit = {
+            threshold
+        };
+        self.#observer = new IntersectionObserver(self.callback, ioi);
+        self.#observer.observe(self);
+        setTimeout(() => {
+            self.checkVisibility(self);
+        }, 50);
     }
-    connectedCallback(){
-        xc.mergeProps<Partial<LazyMT>>(this, slicedPropDefs, {
-            threshold: 0
+
+    onTreatAsVisible(self: this){
+        self.isVisible = true;
+    }
+
+
+    addStartRef(self: this){
+        const prev = self.previousElementSibling as HTMLTemplateElement;
+        if(prev === null || prev.content === undefined) throw "No Template Found";
+        const startRef = prev.previousElementSibling as LazyMTCore;
+        if(startRef.localName !== tagName) throw "No Starting lazy-mt found.";
+        
+        startRef.addEventListener('is-visible-changed', e => {
+            self.isStartVisible = (<any>e).detail.value;
         });
+        return {
+            startRef: new WeakRef(startRef),
+        }
     }
-    onPropChange(name: string, prop: PropDef, nv: any){
-        this.reactor.addToQueue(prop, nv);
-    }
-    disconnectedCallback(){
-        if(this.observer !== undefined) this.observer.disconnect();
-    }
+
     callback: IntersectionObserverCallback = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
         for(const entry of entries){
             if(entry.intersectionRatio > 0){
@@ -50,63 +56,66 @@ export class LazyMT extends HTMLElement implements ReactiveSurface, LazyMTProps{
         }
         this.isVisible = false;
     }
-    checkVisibility(){
-        this.isVisible = isElementInViewport(this);
+    checkVisibility(self: this){
+        self.isVisible = isElementInViewport(this);
+        self.checkedVisibility = true;
     }
 
-}
-export interface LazyMT extends LazyMTProps{}
-
-const linkObserver = ({mount, threshold, self}: LazyMT) => {
-    if(self.treatAsVisible){
-        self.isVisible = true;
-        return;
-    }
-    if(self.observer !== undefined) self.observer.disconnect();
-    const ioi : IntersectionObserverInit = {
-        threshold: threshold
-    };
-    self.observer = new IntersectionObserver(self.callback, ioi);
-    self.observer.observe(self);
-    setTimeout(() => {
-        self.checkVisibility();
-    }, 500);
-    
-}
-
-const linkStartRef = ({exit, self}: LazyMT) => {
-    const prev = self.previousElementSibling as HTMLTemplateElement;
-    if(prev === null || prev.content === undefined) throw "No Template Found";
-    const startRef = prev.previousElementSibling as LazyMT;
-    if(startRef.localName !== LazyMT.is) throw "No Starting lazy-mt found.";
-    
-    self.startRef = new WeakRef(startRef);
-    
-    startRef.addEventListener('is-visible-changed', e => {
-        self.isStartVisible = (<any>e).detail.value;
-    });
-}
-
-function toggleDisabled(self: LazyMT, start: HTMLElement, end: HTMLElement, val: boolean){
-    let ns = start.nextElementSibling;
-    while(ns !== null && ns !== end){
-        if(val){
-            zzz(ns);
-        }else{
-            nudge(ns);
+    #doToggleDisabled(self: this, start: HTMLElement, end: HTMLElement, val: boolean): void{
+        let ns = start.nextElementSibling;
+        while(ns !== null && ns !== end){
+            if(val){
+                zzz(ns);
+            }else{
+                nudge(ns);
+            }
+            ns = ns.nextElementSibling;
         }
-        ns = ns.nextElementSibling;
     }
+    
+    removeContent(self: this){
+        self.cloned = false;
+        const range = new Range();
+        range.setStart(self.entry, 0);
+        range.setEnd(self, 0);
+        range.deleteContents();
+    }
+
+    cloneAndMakeVisible(self: this){
+        const {entry} = self;
+        const prev = self.#templateRef || self.previousElementSibling as HTMLTemplateElement;
+        insertAdjacentTemplate(prev, self.entry, 'afterend');
+        if(self.minMem && self.#templateRef === undefined){
+            self.#templateRef = prev;
+        }else{
+            prev.remove();
+        }
+         //TODO support deleting materialized content
+        self.cloned = true;
+        entry.cloned = true;
+    }
+
+    enableContent(self: this){
+        self.#doToggleDisabled(self, self.entry, self, false);
+    }
+
+    disableContent(self: this){
+        self.#doToggleDisabled(self, self.entry, self, true);
+    }
+
+    get entry(){
+        const entry = this.startRef!.deref();
+        if(entry === undefined) throw "No starting lazy-mt found.";
+        return entry;
+    }
+
+
 }
+
+export interface LazyMTCore extends LazyMTProps{}
 
 function isElementInViewport (el: Element) {
-
     var rect = el.getBoundingClientRect();
-    // console.log({
-    //     rect, 
-    //     winBottom: window.innerHeight || document.documentElement.clientHeight,
-    //     winRight: (window.innerWidth || document.documentElement.clientWidth)
-    // });
     return (
         rect.top >= 0 &&
         rect.left >= 0 &&
@@ -115,84 +124,61 @@ function isElementInViewport (el: Element) {
     );
 }
 
-function removeContent(self: LazyMT, start: HTMLElement, end: HTMLElement){
-    self.cloned = false;
-    const range = new Range();
-    range.setStart(start, 0);
-    range.setEnd(end, 0);
-    range.deleteContents();
-}
+const tagName = 'lazy-mt';
 
-const linkClonedTemplate = ({isVisible, isStartVisible, exit, self}: LazyMT) => {
-    const entry = self.startRef!.deref();
-    if(entry === undefined) throw "No starting lazy-mt found.";
-    if(isVisible || isStartVisible){
-        if(!self.cloned){
-            const prev = self.templateRef || self.previousElementSibling as HTMLTemplateElement;
-            insertAdjacentTemplate(prev, entry, 'afterend');
-            if(self.minMem && self.templateRef === undefined){
-                self.templateRef = prev;
-            }else{
-                prev.remove();
+const xe = new XE<LazyMTProps, LazyMTActions>();
+xe.def({
+    config:{
+        tagName,
+        propDefaults:{
+            checkedVisibility: false,
+            threshold: 0,
+            enter: false,
+            exit: false,
+            isVisible: false,
+            cloned: false,
+            mount: false,
+            minMem: false,
+            toggleDisabled: false,
+            treatAsVisible: false,            
+        },
+        propInfo:{
+            isVisible:{
+                notify:{dispatch:true}
             }
-             //TODO support deleting materialized content
-            self.cloned = true;
-            entry.cloned = true;
-        }else{
-            if(!self.minMem){
-                toggleDisabled(self, entry, self, false);
+        },
+        actions:{
+            addIntersectionObserver:{
+                ifAllOf: ['mount'],
+                ifNoneOf: ['treatAsVisible'],
+                actIfKeyIn: ['threshold']
+            },
+            addStartRef:{
+                ifAllOf: ['exit']
+            },
+            onTreatAsVisible:{
+                ifAllOf: ['treatAsVisible']
+            },
+            cloneAndMakeVisible:{
+                ifAllOf: ['exit', 'startRef', 'checkedVisibility'],
+                ifAtLeastOneOf: ['isVisible', 'isStartVisible'],
+                ifNoneOf: ['cloned'],
+            },
+            enableContent:{
+                ifAtLeastOneOf: ['isVisible', 'isStartVisible', 'startRef'],
+                ifAllOf: ['cloned', 'exit'],
+                ifNoneOf: ['minMem']
+            },
+            disableContent:{
+                ifNoneOf: ['isVisible', 'isStartVisible', 'minMem', 'startRef'],
+                ifAllOf: ['cloned', 'exit'],
+            },
+            removeContent:{
+                ifNoneOf: ['isVisible', 'isStartVisible'],
+                ifAllOf: ['minMem', 'checkedVisibility']
             }
-            
+
         }
-    }else if(self.cloned && self.toggleDisabled && !self.minMem){
-        toggleDisabled(self, entry, self, true);
-    }else if(self.cloned && self.minMem){
-        removeContent(self, entry, self);
-    }
-};
-const propActions = [
-    linkObserver,
-    linkStartRef,
-    linkClonedTemplate
-] as PropAction[];
-
-const baseProp : PropDef = {
-    dry: true,
-    async: true,
-}
-const baseBool: PropDef = {
-    ...baseProp,
-    type: Boolean
-}
-const bool1: PropDef = {
-    ...baseBool,
-    stopReactionsIfFalsy: true,
-}
-const bool2: PropDef = {
-    ...baseBool,
-    notify: true,
-}
-const bool3: PropDef = {
-    ...baseBool,
-    reflect: true
-}
-
-const propDefMap: PropDefMap<LazyMT> = {
-    threshold: {
-        type: Number,
-        dry: true,
-        async: true,
     },
-    enter: bool1,
-    exit: bool1,
-    isVisible: bool2,
-    isStartVisible: baseBool,
-    cloned: bool3,
-    mount: bool1,
-    minMem: baseBool,
-    toggleDisabled: baseBool,
-    treatAsVisible: baseBool,
-}
-const slicedPropDefs = xc.getSlicedPropDefs(propDefMap);
-xc.letThereBeProps(LazyMT, slicedPropDefs, 'onPropChange');
-xc.define(LazyMT);
+    superclass: LazyMTCore
+});
