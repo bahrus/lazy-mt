@@ -11,39 +11,37 @@ import {insertAdjacentTemplate} from 'trans-render/lib/insertAdjacentTemplate.js
 export class LazyMTCore extends HTMLElement implements LazyMTActions{
 
     #observer: IntersectionObserver | undefined;
-    
-    
-    
     #templateRef: HTMLTemplateElement | undefined;
-    addIntersectionObserver(self: this){
-        const {threshold} = self;
-        if(self.#observer !== undefined) self.#observer.disconnect();
+
+    addIntersectionObserver = ({threshold}: this) => {
+        if(this.#observer !== undefined) this.#observer.disconnect();
         const ioi : IntersectionObserverInit = {
             threshold
         };
-        self.#observer = new IntersectionObserver(self.callback, ioi);
-        self.#observer.observe(self);
+        this.#observer = new IntersectionObserver(this.callback, ioi);
+        this.#observer.observe(this);
         setTimeout(() => {
-            self.checkVisibility(self);
+            this.checkVisibility(this);
         }, 50);
-    }
+    };
 
-    onTreatAsVisible(self: this){
-        self.isVisible = true;
-    }
+    onTreatAsVisible = ({}: this) =>({
+        isVisible: true,
+        checkedVisibility: true,
+    });
 
 
-    addStartRef(self: this){
-        const prev = self.previousElementSibling as HTMLTemplateElement;
+    addStartRef = ({previousElementSibling, isStartVisible}: this) => {
+        const prev = previousElementSibling! as HTMLTemplateElement;
         if(prev === null || prev.content === undefined) throw "No Template Found";
         const startRef = prev.previousElementSibling as LazyMTCore;
         if(startRef.localName !== tagName) throw "No Starting lazy-mt found.";
         
         startRef.addEventListener('is-visible-changed', e => {
-            self.isStartVisible = (<any>e).detail.value;
+            isStartVisible = (<any>e).detail.value;
         });
         return {
-            startRef: new WeakRef(startRef),
+            startRef: new WeakRef<LazyMTProps>(startRef),
         }
     }
 
@@ -73,34 +71,33 @@ export class LazyMTCore extends HTMLElement implements LazyMTActions{
         }
     }
     
-    removeContent(self: this){
-        self.cloned = false;
+    removeContent = ({entry}: this) => {
+        this.cloned = false;
         const range = new Range();
-        range.setStart(self.entry, 0);
-        range.setEnd(self, 0);
+        range.setStart(entry as any as Node, 0);
+        range.setEnd(this, 0);
         range.deleteContents();
     }
 
-    cloneAndMakeVisible(self: this){
-        const {entry} = self;
-        const prev = self.#templateRef || self.previousElementSibling as HTMLTemplateElement;
-        insertAdjacentTemplate(prev, self.entry, 'afterend');
-        if(self.minMem && self.#templateRef === undefined){
-            self.#templateRef = prev;
+    cloneAndMakeVisible = ({entry, previousElementSibling, minMem}: this) => {
+        const prev = this.#templateRef || previousElementSibling as HTMLTemplateElement;
+        insertAdjacentTemplate(prev, entry as any as Element, 'afterend');
+        if(minMem && this.#templateRef === undefined){
+            this.#templateRef = prev;
         }else{
             prev.remove();
         }
          //TODO support deleting materialized content
-        self.cloned = true;
+        this.cloned = true;
         entry.cloned = true;
     }
 
-    enableContent(self: this){
-        self.#doToggleDisabled(self, self.entry, self, false);
+    enableContent = ({entry}: this) => {
+        this.#doToggleDisabled(this, entry as any as HTMLElement, this, false);
     }
 
-    disableContent(self: this){
-        self.#doToggleDisabled(self, self.entry, self, true);
+    disableContent = ({entry}: this) => {
+        this.#doToggleDisabled(this, entry as any as HTMLElement, this, true);
     }
 
     get entry(){

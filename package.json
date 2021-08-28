@@ -28,13 +28,13 @@
   ],
   "types": "./types.d.ts",
   "dependencies": {
-    "trans-render": "0.0.339",
-    "xtal-element": "0.0.426"
+    "trans-render": "0.0.350",
+    "xtal-element": "0.0.435"
   },
   "devDependencies": {
     "@skypack/package-check": "0.2.2",
     "xtal-test": "0.0.51",
-    "@custom-elements-manifest/analyzer": "0.4.12"
+    "@custom-elements-manifest/analyzer": "0.5.2"
   },
   "repository": {
     "type": "git",

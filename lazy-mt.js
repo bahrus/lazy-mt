@@ -9,36 +9,36 @@ import { insertAdjacentTemplate } from 'trans-render/lib/insertAdjacentTemplate.
 export class LazyMTCore extends HTMLElement {
     #observer;
     #templateRef;
-    addIntersectionObserver(self) {
-        const { threshold } = self;
-        if (self.#observer !== undefined)
-            self.#observer.disconnect();
+    addIntersectionObserver = ({ threshold }) => {
+        if (this.#observer !== undefined)
+            this.#observer.disconnect();
         const ioi = {
             threshold
         };
-        self.#observer = new IntersectionObserver(self.callback, ioi);
-        self.#observer.observe(self);
+        this.#observer = new IntersectionObserver(this.callback, ioi);
+        this.#observer.observe(this);
         setTimeout(() => {
-            self.checkVisibility(self);
+            this.checkVisibility(this);
         }, 50);
-    }
-    onTreatAsVisible(self) {
-        self.isVisible = true;
-    }
-    addStartRef(self) {
-        const prev = self.previousElementSibling;
+    };
+    onTreatAsVisible = ({}) => ({
+        isVisible: true,
+        checkedVisibility: true,
+    });
+    addStartRef = ({ previousElementSibling, isStartVisible }) => {
+        const prev = previousElementSibling;
         if (prev === null || prev.content === undefined)
             throw "No Template Found";
         const startRef = prev.previousElementSibling;
         if (startRef.localName !== tagName)
             throw "No Starting lazy-mt found.";
         startRef.addEventListener('is-visible-changed', e => {
-            self.isStartVisible = e.detail.value;
+            isStartVisible = e.detail.value;
         });
         return {
             startRef: new WeakRef(startRef),
         };
-    }
+    };
     callback = (entries, observer) => {
         for (const entry of entries) {
             if (entry.intersectionRatio > 0) {
@@ -64,33 +64,32 @@ export class LazyMTCore extends HTMLElement {
             ns = ns.nextElementSibling;
         }
     }
-    removeContent(self) {
-        self.cloned = false;
+    removeContent = ({ entry }) => {
+        this.cloned = false;
         const range = new Range();
-        range.setStart(self.entry, 0);
-        range.setEnd(self, 0);
+        range.setStart(entry, 0);
+        range.setEnd(this, 0);
         range.deleteContents();
-    }
-    cloneAndMakeVisible(self) {
-        const { entry } = self;
-        const prev = self.#templateRef || self.previousElementSibling;
-        insertAdjacentTemplate(prev, self.entry, 'afterend');
-        if (self.minMem && self.#templateRef === undefined) {
-            self.#templateRef = prev;
+    };
+    cloneAndMakeVisible = ({ entry, previousElementSibling, minMem }) => {
+        const prev = this.#templateRef || previousElementSibling;
+        insertAdjacentTemplate(prev, entry, 'afterend');
+        if (minMem && this.#templateRef === undefined) {
+            this.#templateRef = prev;
         }
         else {
             prev.remove();
         }
         //TODO support deleting materialized content
-        self.cloned = true;
+        this.cloned = true;
         entry.cloned = true;
-    }
-    enableContent(self) {
-        self.#doToggleDisabled(self, self.entry, self, false);
-    }
-    disableContent(self) {
-        self.#doToggleDisabled(self, self.entry, self, true);
-    }
+    };
+    enableContent = ({ entry }) => {
+        this.#doToggleDisabled(this, entry, this, false);
+    };
+    disableContent = ({ entry }) => {
+        this.#doToggleDisabled(this, entry, this, true);
+    };
     get entry() {
         const entry = this.startRef.deref();
         if (entry === undefined)

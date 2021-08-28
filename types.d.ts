@@ -7,20 +7,20 @@ export interface LazyMTProps{
     isVisible?: boolean | undefined;
     minMem?: boolean | undefined;
     mount?: boolean | undefined;
-    startRef: WeakRef<LazyMT> | undefined;
+    startRef: WeakRef<LazyMTProps> | undefined;
     threshold?: number | undefined;
     toggleDisabled?: boolean | undefined;
     treatAsVisible: boolean | undefined;
 }
 
 export interface LazyMTActions {
-    addIntersectionObserver(self: this): void;
-    addStartRef(self: this): void;
-    onTreatAsVisible(self: this): void;
-    cloneAndMakeVisible(self: this): void;
-    enableContent(self: this): void;
-    disableContent(self: this): void;
-    removeContent(self: this): void;
+    addIntersectionObserver: (self: this) => void;
+    addStartRef: (self: this) => Partial<LazyMTProps>;
+    onTreatAsVisible: (self: this) => Partial<LazyMTProps>;
+    cloneAndMakeVisible: (self: this) => void;
+    enableContent: (self: this) => void;
+    disableContent: (self: this) => void;
+    removeContent: (self: this) => void;
 }
 
 export interface LazyMT extends HTMLElement, LazyMTProps, LazyMTActions{}
