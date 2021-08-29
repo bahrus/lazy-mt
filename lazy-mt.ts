@@ -106,7 +106,9 @@ export class LazyMTCore extends HTMLElement implements LazyMTActions{
         return entry;
     }
 
-
+    disconnectedCallback(){
+        if(this.#observer !== undefined) this.#observer.disconnect();
+    }
 }
 
 export interface LazyMTCore extends LazyMTProps{}

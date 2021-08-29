@@ -96,6 +96,10 @@ export class LazyMTCore extends HTMLElement {
             throw "No starting lazy-mt found.";
         return entry;
     }
+    disconnectedCallback() {
+        if (this.#observer !== undefined)
+            this.#observer.disconnect();
+    }
 }
 function isElementInViewport(el) {
     var rect = el.getBoundingClientRect();
