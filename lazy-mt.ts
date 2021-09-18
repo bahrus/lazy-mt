@@ -150,7 +150,7 @@ xe.def({
             addIntersectionObserver:{
                 ifAllOf: ['mount'],
                 ifNoneOf: ['treatAsVisible'],
-                actIfKeyIn: ['threshold']
+                ifKeyIn: ['threshold']
             },
             addStartRef:{
                 ifAllOf: ['exit']
@@ -159,7 +159,7 @@ xe.def({
                 ifAllOf: ['treatAsVisible']
             },
             cloneAndMakeVisible:{
-                ifAllOf: ['exit', 'startRef', 'checkedVisibility'],
+                ifAllOf: ['exit', 'startRef', 'checkedVisibility', 'mount'],
                 ifAtLeastOneOf: ['isVisible', 'isStartVisible'],
                 ifNoneOf: ['cloned'],
             },
