@@ -11,10 +11,10 @@
     "doc": "custom-elements-manifest analyze"
   },
   "keywords": [
-    "web components",
-    "web component",
-    "custom elements",
-    "custom element",
+    "web-components",
+    "web-component",
+    "custom-elements",
+    "custom-element",
     "lazy-load"
   ],
   "exports": {
@@ -28,7 +28,7 @@
   ],
   "types": "./types.d.ts",
   "dependencies": {
-    "trans-render": "0.0.409",
+    "trans-render": "0.0.414",
     "xtal-element": "0.0.442"
   },
   "devDependencies": {
