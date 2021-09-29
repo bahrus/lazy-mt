@@ -52,7 +52,8 @@ export class LazyMTCore extends HTMLElement {
         self.isVisible = isElementInViewport(this);
         self.checkedVisibility = true;
     }
-    #doToggleDisabled(self, start, end, val) {
+    //TODO:  make private when skypack supports it
+    doToggleDisabled(self, start, end, val) {
         let ns = start.nextElementSibling;
         while (ns !== null && ns !== end) {
             if (val) {
@@ -85,10 +86,10 @@ export class LazyMTCore extends HTMLElement {
         entry.cloned = true;
     };
     enableContent = ({ entry }) => {
-        this.#doToggleDisabled(this, entry, this, false);
+        this.doToggleDisabled(this, entry, this, false);
     };
     disableContent = ({ entry }) => {
-        this.#doToggleDisabled(this, entry, this, true);
+        this.doToggleDisabled(this, entry, this, true);
     };
     get entry() {
         const entry = this.startRef.deref();
